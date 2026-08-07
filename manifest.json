@@ -1,0 +1,14 @@
+{
+  "name": "Llaves IES Gregorio Prieto",
+  "short_name": "Llaves IES",
+  "description": "Gestión del cajetín de llaves del IES Gregorio Prieto",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a5c3a",
+  "theme_color": "#1a5c3a",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
