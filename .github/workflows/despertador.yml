@@ -1,0 +1,37 @@
+name: Despertador Supabase
+
+# Mantiene vivo el proyecto gratuito de Supabase.
+# Supabase pausa los proyectos free tras 7 dias sin actividad,
+# asi que hacemos una consulta minima dos veces por semana.
+
+on:
+  schedule:
+    # Domingos y miercoles a las 05:00 UTC
+    - cron: '0 5 * * 0,3'
+  # Permite lanzarlo a mano desde la pestana Actions
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consultar Supabase
+        run: |
+          echo "Consultando la tabla llaves..."
+
+          CODIGO=$(curl -s -o /tmp/respuesta.txt -w "%{http_code}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/llaves?select=numero&limit=1" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}")
+
+          echo "Codigo HTTP: $CODIGO"
+          echo "Respuesta: $(cat /tmp/respuesta.txt)"
+
+          if [ "$CODIGO" = "200" ]; then
+            echo "OK - Supabase respondio correctamente. Proyecto despierto."
+          else
+            echo "ERROR - Supabase devolvio el codigo $CODIGO"
+            echo "Revisa que los secretos SUPABASE_URL y SUPABASE_ANON_KEY sean correctos"
+            echo "y que la tabla 'llaves' exista y tenga permiso de lectura publica."
+            exit 1
+          fi
