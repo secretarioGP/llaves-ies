@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a5c3a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Llaves IES">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Llaves · IES Gregorio Prieto</title>
+<style>
+:root{
+  --verde:#1a5c3a; --verde2:#2d7a52; --am:#f5c842;
+  --rojo:#c0392b; --fondo:#f0f2f0; --blanco:#fff;
+  --texto:#1a1a1a; --suave:#666; --sombra:0 2px 8px rgba(0,0,0,.1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--fondo);color:var(--texto);min-height:100vh;overscroll-behavior-y:contain;}
+
+/* HEADER */
+.header{background:var(--verde);color:#fff;padding:13px 14px 10px;position:sticky;top:0;z-index:500;box-shadow:0 2px 10px rgba(0,0,0,.3);}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+.header h1{font-size:1.1rem;font-weight:800;}
+.header p{font-size:.68rem;opacity:.7;margin-top:1px;}
+.btn-edit-h{background:rgba(255,255,255,.18);border:1.5px solid rgba(255,255,255,.4);color:#fff;padding:7px 13px;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;}
+.search-box{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border-radius:10px;padding:8px 12px;}
+.search-box input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:16px;}
+.search-box input::placeholder{color:rgba(255,255,255,.55);}
+
+/* MIGAS */
+.migas{background:var(--verde2);padding:7px 13px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-height:34px;position:sticky;top:107px;z-index:400;}
+.miga{background:rgba(255,255,255,.2);color:#fff;padding:4px 11px;border-radius:12px;font-size:.73rem;font-weight:600;cursor:pointer;border:none;}
+.sep{color:rgba(255,255,255,.35);font-size:.8rem;}
+.migas-hint{color:rgba(255,255,255,.5);font-size:.73rem;}
+
+/* CONTENIDO */
+.contenido{padding:13px 11px 40px;max-width:680px;margin:0 auto;}
+.sec-titulo{font-size:.7rem;font-weight:700;color:var(--suave);text-transform:uppercase;letter-spacing:.8px;margin-bottom:9px;padding-left:2px;}
+
+.grid-edif{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.btn-edif{background:#fff;border:none;border-radius:14px;padding:18px 12px 14px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:7px;box-shadow:var(--sombra);border-bottom:4px solid transparent;position:relative;width:100%;transition:transform .1s;}
+.btn-edif:active{transform:scale(.97);}
+.edif-ico{font-size:2.2rem;line-height:1;}
+.edif-nom{font-size:.88rem;font-weight:700;text-align:center;line-height:1.2;}
+.edif-cnt{font-size:.68rem;color:var(--suave);}
+.edif-dot{position:absolute;top:9px;right:9px;width:9px;height:9px;border-radius:50%;}
+
+.grid-plantas{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+.btn-planta{background:#fff;border:none;border-radius:12px;padding:20px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;box-shadow:var(--sombra);width:100%;transition:transform .1s;}
+.btn-planta:active{transform:scale(.96);}
+.planta-ico{font-size:1.9rem;}
+.planta-nom{font-size:.88rem;font-weight:700;}
+.planta-cnt{font-size:.67rem;color:var(--suave);}
+
+.grid-tipos{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.btn-tipo{background:#fff;border:none;border-radius:12px;padding:15px 12px;cursor:pointer;display:flex;align-items:center;gap:12px;box-shadow:var(--sombra);width:100%;transition:transform .1s;}
+.btn-tipo:active{transform:scale(.97);}
+.tipo-ico{font-size:1.8rem;flex-shrink:0;}
+.tipo-nom{font-size:.87rem;font-weight:700;text-align:left;}
+.tipo-cnt{font-size:.68rem;color:var(--suave);text-align:left;}
+
+.lista-llaves{display:flex;flex-direction:column;gap:8px;}
+.llave-card{background:#fff;border-radius:12px;padding:13px;display:flex;align-items:center;gap:13px;box-shadow:var(--sombra);}
+.llave-num{min-width:50px;height:50px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;font-weight:900;color:#fff;flex-shrink:0;}
+.llave-desc{font-size:.93rem;font-weight:700;line-height:1.3;}
+.llave-sub{font-size:.7rem;color:var(--suave);margin-top:3px;}
+.llave-nota{font-size:.7rem;color:var(--rojo);font-weight:600;margin-top:4px;}
+
+.vacio{text-align:center;padding:50px 20px;color:var(--suave);}
+.vacio .ico{font-size:3rem;display:block;margin-bottom:10px;}
+.spinner{width:32px;height:32px;margin:60px auto 10px;border:4px solid #cde8d8;border-top-color:var(--verde);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* EDICIÓN */
+.v-edit{display:none;} .v-edit.on{display:block;} .v-cons.off{display:none;}
+.pin-wrap{display:flex;flex-direction:column;align-items:center;padding:60px 20px;gap:16px;max-width:320px;margin:0 auto;}
+.pin-wrap h2{color:var(--verde);font-size:1.2rem;font-weight:800;}
+.pin-input{font-size:1.8rem;letter-spacing:10px;text-align:center;width:170px;padding:12px;border:2.5px solid #ddd;border-radius:12px;outline:none;}
+.pin-input:focus{border-color:var(--verde);}
+.pin-btn{background:var(--verde);color:#fff;border:none;padding:13px 32px;border-radius:10px;font-size:1rem;font-weight:700;cursor:pointer;width:170px;}
+.pin-err{color:var(--rojo);font-size:.85rem;font-weight:600;display:none;}
+
+.etopbar{background:var(--verde);padding:12px 14px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:400;}
+.btn-back{background:rgba(255,255,255,.2);border:none;color:#fff;padding:7px 13px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:600;}
+.etopbar-t{color:#fff;font-weight:800;font-size:1rem;flex:1;}
+.etabs{display:flex;background:var(--verde2);}
+.etab{flex:1;padding:10px 6px;text-align:center;color:rgba(255,255,255,.6);font-size:.78rem;font-weight:600;cursor:pointer;border:none;background:none;}
+.etab.on{color:#fff;border-bottom:3px solid var(--am);}
+
+.esearch{background:var(--verde2);padding:8px 13px;display:flex;gap:8px;align-items:center;}
+.esearch input{flex:1;padding:9px 12px;border-radius:8px;border:none;font-size:16px;outline:none;}
+.btn-add{background:var(--am);color:var(--verde);border:none;padding:9px 14px;border-radius:8px;font-size:.82rem;font-weight:700;cursor:pointer;white-space:nowrap;}
+
+.elista{padding:8px 11px 40px;max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:5px;}
+.ei{background:#fff;border-radius:9px;padding:10px 12px;box-shadow:var(--sombra);display:flex;align-items:center;gap:10px;}
+.ei.ok{border-left:4px solid var(--verde);}
+.ei.nok{border-left:4px solid #ccc;opacity:.7;}
+.num-btn{min-width:46px;height:46px;border-radius:7px;border:none;cursor:pointer;font-size:.95rem;font-weight:800;color:#fff;flex-shrink:0;background:var(--verde);}
+.ei.nok .num-btn{background:#aaa;}
+.num-btn:active{transform:scale(.9);}
+.ei-desc{font-size:.86rem;font-weight:600;line-height:1.3;}
+.ei-sub{font-size:.68rem;color:var(--suave);margin-top:2px;}
+
+.cat-lista{padding:10px 11px 40px;max-width:680px;margin:0 auto;display:flex;flex-direction:column;gap:8px;}
+.cat-item{background:#fff;border-radius:11px;padding:13px 14px;box-shadow:var(--sombra);display:flex;align-items:center;gap:12px;}
+.cat-color{width:14px;height:14px;border-radius:50%;flex-shrink:0;}
+.cat-ico{font-size:1.5rem;flex-shrink:0;}
+.cat-info{flex:1;min-width:0;}
+.cat-nom{font-size:.92rem;font-weight:700;}
+.cat-sub{font-size:.7rem;color:var(--suave);margin-top:2px;}
+.btn-icon{background:#f0f2f0;border:none;border-radius:7px;padding:7px 11px;cursor:pointer;font-size:.9rem;}
+.btn-icon.del{color:var(--rojo);}
+.btn-add-cat{background:var(--am);color:var(--verde);border:none;padding:12px;border-radius:10px;font-size:.88rem;font-weight:700;cursor:pointer;margin:10px 11px 0;width:calc(100% - 22px);max-width:658px;display:block;}
+.btn-print{background:var(--am);color:var(--verde);border:none;padding:7px 13px;border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:700;white-space:nowrap;}
+/* Selector de iconos */
+.ico-sel{display:flex;align-items:center;gap:10px;margin-bottom:7px;}
+.ico-actual{font-size:2rem;width:52px;height:46px;display:flex;align-items:center;justify-content:center;background:#f0f4f1;border:1.5px solid #d5ddd7;border-radius:9px;flex-shrink:0;}
+.ico-sel input{flex:1;font-size:1.3rem;text-align:center;}
+.ico-paleta{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-height:168px;overflow-y:auto;background:#f7f9f8;border:1.5px solid #e2e8e4;border-radius:9px;padding:7px;}
+.ico-op{font-size:1.35rem;background:#fff;border:1.5px solid transparent;border-radius:7px;padding:5px 0;cursor:pointer;line-height:1.2;transition:all .1s;}
+.ico-op:hover{background:#e3f0e8;}
+.ico-op.sel{border-color:var(--verde);background:#d9ecdf;}
+.ico-op:active{transform:scale(.9);}
+
+/* ══ IMPRESIÓN ══ */
+#print-area{display:none;}
+@media print{
+  body{background:#fff;}
+  .v-cons,.v-edit,.ov,#toast{display:none !important;}
+  #print-area{display:block !important;}
+  @page{size:A4;margin:12mm 10mm;}
+}
+.p-cab{text-align:center;margin-bottom:14px;border-bottom:2.5px solid #1a5c3a;padding-bottom:8px;}
+.p-cab h1{font-size:15pt;color:#1a5c3a;margin-bottom:2px;}
+.p-cab .sub{font-size:8.5pt;color:#555;}
+.p-inst{background:#f4f7f5;border-left:3px solid #1a5c3a;padding:6px 9px;font-size:8pt;color:#333;margin-bottom:12px;line-height:1.4;}
+.p-edif{font-size:12pt;font-weight:800;color:#fff;background:#1a5c3a;padding:4px 9px;margin:12px 0 0;border-radius:3px;page-break-after:avoid;}
+.p-planta{font-size:9.5pt;font-weight:700;color:#1a5c3a;background:#e3f0e8;padding:3px 9px;margin:7px 0 0;border-radius:2px;page-break-after:avoid;}
+.p-tipo{font-size:8.5pt;font-weight:700;color:#444;padding:5px 2px 2px;page-break-after:avoid;}
+table.p-tab{width:100%;border-collapse:collapse;page-break-inside:auto;}
+table.p-tab th{background:#f0f2f0;font-size:7.5pt;text-transform:uppercase;letter-spacing:.4px;color:#555;border:1px solid #bbb;padding:3px 5px;text-align:left;}
+table.p-tab td{border:1px solid #bbb;padding:5px;font-size:9pt;vertical-align:middle;}
+table.p-tab tr{page-break-inside:avoid;}
+.c-num{width:32px;text-align:center;font-weight:800;font-size:10pt;}
+.c-desc{width:44%;}
+.c-corr{background:#fffdf2;}
+.c-nota{font-size:7.5pt;color:#c0392b;font-weight:700;display:block;}
+.p-sin{background:#fff4e0;border:1.5px dashed #d08800;padding:6px 9px;margin:14px 0 0;font-size:9.5pt;font-weight:700;color:#8a5a00;border-radius:3px;page-break-after:avoid;}
+.p-pie{margin-top:16px;padding-top:6px;border-top:1px solid #ccc;font-size:7.5pt;color:#777;text-align:center;}
+
+/* MODAL */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:900;align-items:flex-end;justify-content:center;}
+.ov.on{display:flex;}
+.modal{background:#fff;border-radius:18px 18px 0 0;padding:18px 16px 34px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;}
+.drag{width:38px;height:4px;background:#ddd;border-radius:2px;margin:0 auto 14px;}
+.modal h3{font-size:1rem;font-weight:800;color:var(--verde);margin-bottom:14px;}
+.fg{margin-bottom:11px;}
+.fg label{display:block;font-size:.7rem;font-weight:700;color:var(--suave);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px;}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 11px;border:1.5px solid #ddd;border-radius:8px;font-size:16px;outline:none;font-family:inherit;background:#fff;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--verde);}
+.fg textarea{resize:vertical;min-height:52px;}
+.cprev{display:flex;align-items:center;gap:10px;}
+.cprev input[type=color]{width:48px;height:38px;border:none;border-radius:7px;cursor:pointer;padding:2px;}
+.cprev span{font-size:.8rem;color:var(--suave);}
+.mbtns{display:flex;gap:8px;margin-top:16px;}
+.plantas-check{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+.pchk{display:flex;align-items:center;gap:8px;background:#f5f7f5;border:1.5px solid #ddd;border-radius:9px;padding:11px 12px;cursor:pointer;transition:all .12s;}
+.pchk input{width:20px;height:20px;accent-color:var(--verde);margin:0;flex-shrink:0;}
+.pchk span{font-size:.88rem;font-weight:600;}
+.pchk:has(input:checked){background:#e3f2e9;border-color:var(--verde);}
+.btn-del-full{width:100%;background:#fdecea;color:var(--rojo);border:1.5px solid #f5c6c0;padding:12px;border-radius:9px;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:10px;}
+.btn-del-full:active{background:#fadbd8;}
+.btn-g{flex:1;background:var(--verde);color:#fff;border:none;padding:13px;border-radius:9px;font-size:1rem;font-weight:700;cursor:pointer;}
+.btn-g:disabled{opacity:.5;}
+.btn-c{background:#eee;color:#555;border:none;padding:13px 18px;border-radius:9px;font-size:1rem;cursor:pointer;}
+
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--verde);color:#fff;padding:10px 22px;border-radius:20px;font-size:.88rem;font-weight:600;opacity:0;transition:all .2s;pointer-events:none;z-index:9999;box-shadow:0 3px 14px rgba(0,0,0,.3);}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+mark{background:var(--am);border-radius:2px;padding:0 1px;}
+footer{text-align:center;font-size:.64rem;color:var(--suave);padding:8px 0 24px;}
+</style>
+</head>
+<body>
+
+<!-- CONSULTA -->
+<div class="v-cons" id="v-cons">
+  <div class="header">
+    <div class="header-top">
+      <div><h1>🔑 Llaves del Centro</h1><p>IES Gregorio Prieto · Valdepeñas</p></div>
+      <button class="btn-edit-h" onclick="verEdit()">✏️ Editar</button>
+    </div>
+    <div class="search-box">
+      <span style="font-size:1rem;opacity:.7">🔍</span>
+      <input type="search" id="q" placeholder="Buscar número o dependencia…" autocomplete="off">
+    </div>
+  </div>
+  <div class="migas" id="migas"><span class="migas-hint">Selecciona un edificio para empezar</span></div>
+  <div class="contenido" id="cont"><div class="spinner"></div></div>
+  <footer id="foot"></footer>
+</div>
+
+<!-- EDICIÓN -->
+<div class="v-edit" id="v-edit">
+  <div id="pin-scr">
+    <div class="etopbar"><button class="btn-back" onclick="verCons()">← Volver</button><span class="etopbar-t">✏️ Edición</span></div>
+    <div class="pin-wrap">
+      <div style="font-size:3rem">🔒</div>
+      <h2>Zona de Edición</h2>
+      <p style="font-size:.85rem;color:var(--suave);text-align:center">Introduce el PIN para gestionar llaves, edificios y tipos</p>
+      <input class="pin-input" type="password" id="pin" maxlength="6" placeholder="••••">
+      <button class="pin-btn" onclick="checkPin()">Entrar</button>
+      <span class="pin-err" id="pin-err">❌ PIN incorrecto</span>
+    </div>
+  </div>
+  <div id="ed-cont" style="display:none">
+    <div class="etopbar"><button class="btn-back" onclick="verCons()">← Volver</button><span class="etopbar-t">✏️ Gestión</span><button class="btn-print" onclick="imprimir()">🖨️ Imprimir</button></div>
+    <div class="etabs">
+      <button class="etab on" id="tb-llaves" onclick="secc('llaves')">🔑 Llaves</button>
+      <button class="etab" id="tb-edificios" onclick="secc('edificios')">🏢 Edificios</button>
+      <button class="etab" id="tb-tipos" onclick="secc('tipos')">📋 Tipos</button>
+    </div>
+    <div id="s-llaves">
+      <div class="esearch">
+        <input type="search" id="eq" placeholder="Filtrar por número o nombre…">
+        <button class="btn-add" onclick="mLlave(null)">+ Añadir</button>
+      </div>
+      <div class="elista" id="e-lista"><div class="spinner"></div></div>
+    </div>
+    <div id="s-edificios" style="display:none">
+      <button class="btn-add-cat" onclick="mEdif(null)">+ Añadir edificio nuevo</button>
+      <div class="cat-lista" id="c-edif"></div>
+    </div>
+    <div id="s-tipos" style="display:none">
+      <button class="btn-add-cat" onclick="mTipo(null)">+ Añadir tipo nuevo</button>
+      <div class="cat-lista" id="c-tipos"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ZONA IMPRIMIBLE (oculta en pantalla) -->
+<div id="print-area"></div>
+
+<!-- MODAL LLAVE -->
+<div class="ov" id="ov-l"><div class="modal">
+  <div class="drag"></div><h3 id="ml-t">Llave</h3>
+  <div class="fg"><label>Número</label><input type="number" id="ml-n" min="1" placeholder="Ej: 34"></div>
+  <div class="fg"><label>Descripción</label><input type="text" id="ml-d" placeholder="Ej: Taller de Carrocería"></div>
+  <div class="fg"><label>Edificio</label><select id="ml-e" onchange="plantasSel(this.value,'')"></select></div>
+  <div class="fg"><label>Planta</label><select id="ml-p"></select></div>
+  <div class="fg"><label>Tipo de dependencia</label><select id="ml-ti"></select></div>
+  <div class="fg"><label>Notas</label><textarea id="ml-no" placeholder="Ej: NO PRESTAR"></textarea></div>
+  <div class="mbtns"><button class="btn-c" onclick="cerrar('ov-l')">Cancelar</button><button class="btn-g" id="ml-b" onclick="saveLlave()">💾 Guardar</button></div>
+  <button class="btn-del-full" id="ml-del" onclick="delLlave()">🗑️ Eliminar esta llave</button>
+</div></div>
+
+<!-- MODAL EDIFICIO -->
+<div class="ov" id="ov-e"><div class="modal">
+  <div class="drag"></div><h3 id="me-t">Edificio</h3>
+  <div class="fg"><label>Nombre</label><input type="text" id="me-n" placeholder="Ej: Electricidad"></div>
+  <div class="fg"><label>Plantas que tiene este edificio</label>
+    <div class="plantas-check" id="me-plantas-box">
+      <label class="pchk"><input type="checkbox" value="Baja"><span>⬇️ Baja</span></label>
+      <label class="pchk"><input type="checkbox" value="1ª"><span>1️⃣ Primera</span></label>
+      <label class="pchk"><input type="checkbox" value="2ª"><span>2️⃣ Segunda</span></label>
+      <label class="pchk"><input type="checkbox" value="3ª"><span>3️⃣ Tercera</span></label>
+    </div>
+    <small style="font-size:.68rem;color:var(--suave);display:block;margin-top:5px">Si no marcas ninguna, el edificio no tendrá plantas (ej: Exterior)</small>
+  </div>
+  <div class="fg"><label>Icono del edificio</label>
+    <div class="ico-sel"><span class="ico-actual" id="me-i-prev">🏠</span>
+      <input type="text" id="me-i" placeholder="🏠" maxlength="4"></div>
+    <div class="ico-paleta" id="me-paleta"></div>
+  </div>
+  <div class="fg"><label>Color identificativo</label><div class="cprev"><input type="color" id="me-c" value="#1a5c3a"><span>Aparece en los botones de la app</span></div></div>
+  <div class="fg"><label>Notas</label><textarea id="me-no" placeholder="Descripción opcional…"></textarea></div>
+  <div class="mbtns"><button class="btn-c" onclick="cerrar('ov-e')">Cancelar</button><button class="btn-g" id="me-b" onclick="saveEdif()">💾 Guardar</button></div>
+</div></div>
+
+<!-- MODAL TIPO -->
+<div class="ov" id="ov-t"><div class="modal">
+  <div class="drag"></div><h3 id="mt-t">Tipo de dependencia</h3>
+  <div class="fg"><label>Nombre</label><input type="text" id="mt-n" placeholder="Ej: Sala de Reuniones"></div>
+  <div class="fg"><label>Icono del tipo</label>
+    <div class="ico-sel"><span class="ico-actual" id="mt-i-prev">🔑</span>
+      <input type="text" id="mt-i" placeholder="🔑" maxlength="4"></div>
+    <div class="ico-paleta" id="mt-paleta"></div>
+  </div>
+  <div class="fg"><label>Notas</label><textarea id="mt-no" placeholder="Descripción opcional…"></textarea></div>
+  <div class="mbtns"><button class="btn-c" onclick="cerrar('ov-t')">Cancelar</button><button class="btn-g" id="mt-b" onclick="saveTipo()">💾 Guardar</button></div>
+</div></div>
+
+<div id="toast"></div>
+
+<script>
+// ══ CONFIG SUPABASE ══
+const SB_URL="https://grggldgkiwqlyaykshzy.supabase.co";
+const SB_KEY="sb_publishable_dPCZQFap_8WXBZxy0SOGxw_UxHCJSK3";
+const PIN_APP="gp27";
+
+const H={apikey:SB_KEY,Authorization:'Bearer '+SB_KEY,'Content-Type':'application/json'};
+
+async function sbGet(tabla,orden){
+  const r=await fetch(`${SB_URL}/rest/v1/${tabla}?select=*&order=${orden}`,{headers:H});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function sbUpsert(tabla,obj){
+  const r=await fetch(`${SB_URL}/rest/v1/${tabla}`,{method:'POST',headers:{...H,Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify(obj)});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function sbPatch(tabla,filtro,obj){
+  const r=await fetch(`${SB_URL}/rest/v1/${tabla}?${filtro}`,{method:'PATCH',headers:{...H,Prefer:'return=representation'},body:JSON.stringify(obj)});
+  if(!r.ok)throw new Error(await r.text());
+  return r.json();
+}
+async function sbDel(tabla,filtro){
+  const r=await fetch(`${SB_URL}/rest/v1/${tabla}?${filtro}`,{method:'DELETE',headers:H});
+  if(!r.ok)throw new Error(await r.text());
+}
+
+// ══ ESTADO ══
+let LL=[],ED=[],TI=[];
+let sE=null,sP=null,sT=null,q="",eq="";
+let pinOK=false,editEdif=null,editTipo=null;
+const ICO_P={'Baja':'⬇️','1ª':'1️⃣','2ª':'2️⃣','3ª':'3️⃣'};
+
+// ══ CARGA ══
+async function cargar(){
+  try{
+    const [ll,ed,ti]=await Promise.all([
+      sbGet('llaves','numero.asc'),
+      sbGet('edificios','orden.asc'),
+      sbGet('tipos','orden.asc')
+    ]);
+    LL=ll;ED=ed;TI=ti;
+    verEdificios();
+    document.getElementById('foot').textContent=LL.filter(l=>l.edificio).length+' llaves clasificadas · IES Gregorio Prieto';
+  }catch(e){
+    document.getElementById('cont').innerHTML='<div class="vacio"><span class="ico">⚠️</span>Error de conexión<br><small style="font-size:.7rem">'+e.message+'</small></div>';
+  }
+}
+cargar();
+
+const clasif=()=>LL.filter(l=>l.edificio&&l.tipo);
+
+// ══ NAVEGACIÓN CONSULTA ══
+function verEdificios(){
+  sE=null;sP=null;sT=null;migas();
+  if(q.trim()){busq();return;}
+  const c={};clasif().forEach(l=>c[l.edificio]=(c[l.edificio]||0)+1);
+  const lista=ED.filter(e=>c[e.nombre]);
+  document.getElementById('cont').innerHTML=`
+    <p class="sec-titulo">Selecciona un edificio</p>
+    <div class="grid-edif">${lista.map(e=>`
+      <button class="btn-edif" onclick="selE('${esc(e.nombre)}')" style="border-bottom-color:${e.color}">
+        <div class="edif-dot" style="background:${e.color}"></div>
+        <span class="edif-ico">${e.icono||'🏠'}</span>
+        <span class="edif-nom">${e.nombre}</span>
+        <span class="edif-cnt">${c[e.nombre]} llaves</span>
+      </button>`).join('')}</div>`;
+}
+
+function selE(n){
+  sE=n;sP=null;sT=null;migas();
+  const e=ED.find(x=>x.nombre===n),col=e?e.color:'#1a5c3a';
+  const cp={};clasif().filter(l=>l.edificio===n).forEach(l=>cp[l.planta]=(cp[l.planta]||0)+1);
+  const plantas=(e?e.plantas.split(',').map(s=>s.trim()):[]).filter(p=>cp[p]);
+  if(!plantas.length){selP('-');return;}
+  document.getElementById('cont').innerHTML=`
+    <p class="sec-titulo">¿En qué planta?</p>
+    <div class="grid-plantas">${plantas.map(p=>`
+      <button class="btn-planta" onclick="selP('${p}')" style="border-bottom:4px solid ${col}">
+        <span class="planta-ico">${ICO_P[p]||'📍'}</span>
+        <span class="planta-nom">Planta ${p}</span>
+        <span class="planta-cnt">${cp[p]} llaves</span>
+      </button>`).join('')}</div>`;
+}
+
+function selP(p){
+  sP=p;sT=null;migas();
+  const e=ED.find(x=>x.nombre===sE),col=e?e.color:'#1a5c3a';
+  const aqui=clasif().filter(l=>l.edificio===sE&&(p==='-'||l.planta===p));
+  const ct={};aqui.forEach(l=>ct[l.tipo]=(ct[l.tipo]||0)+1);
+  const tipos=TI.filter(t=>ct[t.nombre]);
+  if(!tipos.length){verLlaves();return;}
+  document.getElementById('cont').innerHTML=`
+    <p class="sec-titulo">¿Qué tipo de dependencia?</p>
+    <div class="grid-tipos">${tipos.map(t=>`
+      <button class="btn-tipo" onclick="selT('${esc(t.nombre)}')" style="border-left:5px solid ${col}">
+        <span class="tipo-ico">${t.icono}</span>
+        <div><div class="tipo-nom">${t.nombre}</div><div class="tipo-cnt">${ct[t.nombre]} llave${ct[t.nombre]>1?'s':''}</div></div>
+      </button>`).join('')}</div>`;
+}
+
+function selT(t){sT=t;migas();verLlaves();}
+
+function verLlaves(){
+  const e=ED.find(x=>x.nombre===sE),col=e?e.color:'#1a5c3a';
+  const r=clasif().filter(l=>l.edificio===sE&&(!sP||sP==='-'||l.planta===sP)&&(!sT||l.tipo===sT));
+  document.getElementById('cont').innerHTML=`
+    <p class="sec-titulo">${r.length} llave${r.length!==1?'s':''}</p>
+    <div class="lista-llaves">${r.map(l=>card(l,col,'')).join('')}</div>`;
+}
+
+function card(l,col,qq){
+  return `<div class="llave-card" style="border-left:5px solid ${col}">
+    <div class="llave-num" style="background:${col}">${hl(String(l.numero),qq)}</div>
+    <div><div class="llave-desc">${hl(l.descripcion,qq)}</div>
+    <div class="llave-sub">${[l.edificio,l.planta&&l.planta!=='-'?'Planta '+l.planta:'',l.tipo].filter(Boolean).join(' · ')}</div>
+    ${l.notas?`<div class="llave-nota">⚠ ${l.notas}</div>`:''}</div></div>`;
+}
+
+// BÚSQUEDA
+document.getElementById('q').addEventListener('input',e=>{q=e.target.value;q.trim()?busq():verEdificios();});
+function busq(){
+  migas();
+  const qq=q.toLowerCase().trim();
+  const r=clasif().filter(l=>[l.descripcion,String(l.numero),l.edificio,l.planta,l.tipo,l.notas].some(v=>(v||'').toLowerCase().includes(qq)));
+  document.getElementById('cont').innerHTML=r.length
+    ?`<p class="sec-titulo">${r.length} resultado${r.length!==1?'s':''}</p><div class="lista-llaves">${r.map(l=>card(l,colE(l.edificio),qq)).join('')}</div>`
+    :`<div class="vacio"><span class="ico">🔍</span>Sin resultados</div>`;
+}
+
+function migas(){
+  const m=document.getElementById('migas');
+  if(q.trim()){m.innerHTML=`<button class="miga" onclick="limpq()">🔍 "${q}" ✕</button>`;return;}
+  if(!sE){m.innerHTML='<span class="migas-hint">Selecciona un edificio para empezar</span>';return;}
+  let h=`<button class="miga" onclick="verEdificios()">🏠</button><span class="sep">›</span><button class="miga" onclick="selE('${esc(sE)}')">${sE}</button>`;
+  if(sP&&sP!=='-')h+=`<span class="sep">›</span><button class="miga" onclick="selP('${sP}')">Planta ${sP}</button>`;
+  if(sT)h+=`<span class="sep">›</span><span class="miga">${sT}</span>`;
+  m.innerHTML=h;
+}
+function limpq(){q='';document.getElementById('q').value='';verEdificios();}
+
+// ══ EDICIÓN ══
+function verEdit(){document.getElementById('v-cons').classList.add('off');document.getElementById('v-edit').classList.add('on');if(!pinOK)setTimeout(()=>document.getElementById('pin').focus(),100);}
+function verCons(){document.getElementById('v-cons').classList.remove('off');document.getElementById('v-edit').classList.remove('on');}
+function checkPin(){
+  if(document.getElementById('pin').value===PIN_APP){
+    pinOK=true;
+    document.getElementById('pin-scr').style.display='none';
+    document.getElementById('ed-cont').style.display='block';
+    rLlaves();
+  }else{document.getElementById('pin-err').style.display='block';document.getElementById('pin').value='';}
+}
+document.getElementById('pin').addEventListener('keydown',e=>{if(e.key==='Enter')checkPin();});
+
+function secc(s){
+  ['llaves','edificios','tipos'].forEach(x=>{
+    document.getElementById('s-'+x).style.display=x===s?'block':'none';
+    document.getElementById('tb-'+x).classList.toggle('on',x===s);
+  });
+  if(s==='edificios')rEdif();if(s==='tipos')rTipos();
+}
+
+function rLlaves(){
+  const qq=eq.toLowerCase().trim();
+  const r=LL.filter(l=>!qq||(l.descripcion||'').toLowerCase().includes(qq)||String(l.numero).includes(qq));
+  document.getElementById('e-lista').innerHTML=r.length?r.map(l=>{
+    const ok=l.edificio&&l.tipo;
+    return `<div class="ei ${ok?'ok':'nok'}"><button class="num-btn" onclick="mLlave(${l.numero})">${l.numero}</button>
+      <div style="flex:1;min-width:0"><div class="ei-desc">${l.descripcion&&l.descripcion!=='(sin asignar)'?l.descripcion:'—'}</div>
+      <div class="ei-sub">${ok?[l.edificio,l.planta&&l.planta!=='-'?'Planta '+l.planta:'',l.tipo].filter(Boolean).join(' · '):'Sin clasificar — toca el número'}</div></div></div>`;
+  }).join(''):'<div class="vacio"><span class="ico">🔍</span>Sin resultados</div>';
+}
+document.getElementById('eq').addEventListener('input',e=>{eq=e.target.value;rLlaves();});
+
+function rEdif(){
+  document.getElementById('c-edif').innerHTML=ED.map(e=>`
+    <div class="cat-item"><div class="cat-color" style="background:${e.color}"></div>
+    <div class="cat-info"><div class="cat-nom">${e.icono||'🏠'} ${e.nombre}</div>
+    <div class="cat-sub">Plantas: ${e.plantas||'—'}${e.notas?' · '+e.notas:''}</div></div>
+    <div style="display:flex;gap:6px"><button class="btn-icon" onclick="mEdif('${esc(e.nombre)}')">✏️</button>
+    <button class="btn-icon del" onclick="delEdif('${esc(e.nombre)}',${e.id})">🗑️</button></div></div>`).join('');
+}
+function rTipos(){
+  document.getElementById('c-tipos').innerHTML=TI.map(t=>`
+    <div class="cat-item"><span class="cat-ico">${t.icono}</span>
+    <div class="cat-info"><div class="cat-nom">${t.nombre}</div>${t.notas?`<div class="cat-sub">${t.notas}</div>`:''}</div>
+    <div style="display:flex;gap:6px"><button class="btn-icon" onclick="mTipo('${esc(t.nombre)}')">✏️</button>
+    <button class="btn-icon del" onclick="delTipo('${esc(t.nombre)}',${t.id})">🗑️</button></div></div>`).join('');
+}
+
+// ══ MODAL LLAVE ══
+function mLlave(n){
+  const l=n!=null?(LL.find(x=>x.numero===n)||{}):{};
+  document.getElementById('ml-t').textContent=n!=null?'Llave Nº '+n:'Nueva llave';
+  document.getElementById('ml-n').value=n!=null?n:'';
+  document.getElementById('ml-n').disabled=n!=null;
+  document.getElementById('ml-d').value=(l.descripcion&&l.descripcion!=='(sin asignar)')?l.descripcion:'';
+  document.getElementById('ml-no').value=l.notas||'';
+  const se=document.getElementById('ml-e');se.innerHTML='<option value="">— Sin clasificar —</option>';
+  ED.forEach(e=>{const o=new Option(e.nombre,e.nombre);if(e.nombre===l.edificio)o.selected=true;se.add(o);});
+  plantasSel(l.edificio||'',l.planta||'');
+  const st=document.getElementById('ml-ti');st.innerHTML='<option value="">— Sin clasificar —</option>';
+  TI.forEach(t=>{const o=new Option(t.icono+' '+t.nombre,t.nombre);if(t.nombre===l.tipo)o.selected=true;st.add(o);});
+  // Botón eliminar solo al editar una llave existente
+  document.getElementById('ml-del').style.display=n!=null?'block':'none';
+  abrir('ov-l');
+}
+async function delLlave(){
+  const n=parseInt(document.getElementById('ml-n').value);
+  if(!n)return;
+  const l=LL.find(x=>x.numero===n);
+  const nom=(l&&l.descripcion&&l.descripcion!=='(sin asignar)')?l.descripcion:'';
+  if(!confirm('¿Eliminar la llave Nº '+n+(nom?'\n"'+nom+'"':'')+'?\n\nEsta acción no se puede deshacer.'))return;
+  const b=document.getElementById('ml-del');
+  b.disabled=true;b.textContent='Eliminando…';
+  try{
+    await sbDel('llaves','numero=eq.'+n);
+    LL=LL.filter(x=>x.numero!==n);
+    cerrar('ov-l');toast('🗑️ Llave '+n+' eliminada');rLlaves();
+    document.getElementById('foot').textContent=clasif().length+' llaves clasificadas · IES Gregorio Prieto';
+  }catch(e){toast('Error: '+e.message);}
+  b.disabled=false;b.textContent='🗑️ Eliminar esta llave';
+}
+function plantasSel(ed,sel){
+  const sp=document.getElementById('ml-p');sp.innerHTML='<option value="">— Sin planta —</option>';
+  const e=ED.find(x=>x.nombre===ed);
+  if(e&&e.plantas&&e.plantas!=='-')e.plantas.split(',').map(s=>s.trim()).forEach(p=>{const o=new Option('Planta '+p,p);if(p===sel)o.selected=true;sp.add(o);});
+}
+async function saveLlave(){
+  const b=document.getElementById('ml-b');
+  const n=parseInt(document.getElementById('ml-n').value);
+  if(!n||n<1){toast('Indica un número válido');return;}
+  const obj={numero:n,descripcion:document.getElementById('ml-d').value.trim()||'(sin asignar)',
+    edificio:document.getElementById('ml-e').value,planta:document.getElementById('ml-p').value,
+    tipo:document.getElementById('ml-ti').value,notas:document.getElementById('ml-no').value.trim()};
+  b.disabled=true;b.textContent='Guardando…';
+  try{
+    await sbUpsert('llaves',obj);
+    const i=LL.findIndex(x=>x.numero===n);
+    if(i>=0)LL[i]=obj;else{LL.push(obj);LL.sort((a,b)=>a.numero-b.numero);}
+    cerrar('ov-l');toast('✓ Llave '+n+' guardada');rLlaves();
+    document.getElementById('foot').textContent=clasif().length+' llaves clasificadas · IES Gregorio Prieto';
+  }catch(e){toast('Error: '+e.message);}
+  b.disabled=false;b.textContent='💾 Guardar';
+}
+
+// ══ MODAL EDIFICIO ══
+function mEdif(n){
+  editEdif=n;
+  const e=n?ED.find(x=>x.nombre===n):null;
+  document.getElementById('me-t').textContent=n?'Editar edificio':'Nuevo edificio';
+  document.getElementById('me-n').value=e?e.nombre:'';
+  // Marcar checkboxes de plantas
+  const actuales=e&&e.plantas&&e.plantas!=='-'?e.plantas.split(',').map(s=>s.trim()):[];
+  document.querySelectorAll('#me-plantas-box input').forEach(chk=>{
+    chk.checked=actuales.includes(chk.value);
+  });
+  marcarIcono('me-paleta','me-i','me-i-prev',e?e.icono:'🏠');
+  document.getElementById('me-c').value=e?e.color:'#1a5c3a';
+  document.getElementById('me-no').value=e?(e.notas||''):'';
+  abrir('ov-e');
+}
+async function saveEdif(){
+  const b=document.getElementById('me-b');
+  const nom=document.getElementById('me-n').value.trim();
+  if(!nom){toast('Indica un nombre');return;}
+  const marcadas=[...document.querySelectorAll('#me-plantas-box input:checked')].map(c=>c.value);
+  // Avisar si se quita una planta que tiene llaves
+  if(editEdif){
+    const enUso=[...new Set(LL.filter(l=>l.edificio===editEdif&&l.planta&&l.planta!=='-').map(l=>l.planta))];
+    const perdidas=enUso.filter(p=>!marcadas.includes(p));
+    if(perdidas.length){
+      const cuantas=LL.filter(l=>l.edificio===editEdif&&perdidas.includes(l.planta)).length;
+      if(!confirm('⚠️ Vas a quitar la planta '+perdidas.join(', ')+' pero hay '+cuantas+' llave'+(cuantas>1?'s':'')+' asignada'+(cuantas>1?'s':'')+' ahí.\n\nEsas llaves dejarán de aparecer en la consulta hasta que las reclasifiques.\n\n¿Continuar?'))return;
+    }
+  }
+  const obj={nombre:nom,plantas:marcadas.length?marcadas.join(','):'-',
+    icono:document.getElementById('me-i').value.trim()||'🏠',color:document.getElementById('me-c').value,
+    notas:document.getElementById('me-no').value.trim()};
+  b.disabled=true;b.textContent='Guardando…';
+  try{
+    if(editEdif){
+      const old=ED.find(x=>x.nombre===editEdif);
+      await sbPatch('edificios','id=eq.'+old.id,obj);
+      if(editEdif!==nom){
+        await sbPatch('llaves','edificio=eq.'+encodeURIComponent(editEdif),{edificio:nom});
+        LL.forEach(l=>{if(l.edificio===editEdif)l.edificio=nom;});
+      }
+      Object.assign(old,obj);
+    }else{
+      obj.orden=ED.length+1;
+      const r=await sbUpsert('edificios',obj);
+      ED.push(r[0]);
+    }
+    cerrar('ov-e');toast('✓ Edificio guardado');rEdif();
+  }catch(e){toast('Error: '+e.message);}
+  b.disabled=false;b.textContent='💾 Guardar';
+}
+async function delEdif(nom,id){
+  if(LL.some(l=>l.edificio===nom)){toast('⚠ Hay llaves en este edificio. Reclasifícalas primero.');return;}
+  if(!confirm('¿Eliminar el edificio "'+nom+'"?'))return;
+  try{await sbDel('edificios','id=eq.'+id);ED=ED.filter(e=>e.id!==id);rEdif();toast('Edificio eliminado');}
+  catch(e){toast('Error: '+e.message);}
+}
+
+// ══ MODAL TIPO ══
+function mTipo(n){
+  editTipo=n;
+  const t=n?TI.find(x=>x.nombre===n):null;
+  document.getElementById('mt-t').textContent=n?'Editar tipo':'Nuevo tipo';
+  document.getElementById('mt-n').value=t?t.nombre:'';
+  marcarIcono('mt-paleta','mt-i','mt-i-prev',t?t.icono:'🔑');
+  document.getElementById('mt-no').value=t?(t.notas||''):'';
+  abrir('ov-t');
+}
+async function saveTipo(){
+  const b=document.getElementById('mt-b');
+  const nom=document.getElementById('mt-n').value.trim();
+  if(!nom){toast('Indica un nombre');return;}
+  const obj={nombre:nom,icono:document.getElementById('mt-i').value.trim()||'🔑',notas:document.getElementById('mt-no').value.trim()};
+  b.disabled=true;b.textContent='Guardando…';
+  try{
+    if(editTipo){
+      const old=TI.find(x=>x.nombre===editTipo);
+      await sbPatch('tipos','id=eq.'+old.id,obj);
+      if(editTipo!==nom){
+        await sbPatch('llaves','tipo=eq.'+encodeURIComponent(editTipo),{tipo:nom});
+        LL.forEach(l=>{if(l.tipo===editTipo)l.tipo=nom;});
+      }
+      Object.assign(old,obj);
+    }else{
+      obj.orden=TI.length+1;
+      const r=await sbUpsert('tipos',obj);
+      TI.push(r[0]);
+    }
+    cerrar('ov-t');toast('✓ Tipo guardado');rTipos();
+  }catch(e){toast('Error: '+e.message);}
+  b.disabled=false;b.textContent='💾 Guardar';
+}
+async function delTipo(nom,id){
+  if(LL.some(l=>l.tipo===nom)){toast('⚠ Hay llaves de este tipo. Reclasifícalas primero.');return;}
+  if(!confirm('¿Eliminar el tipo "'+nom+'"?'))return;
+  try{await sbDel('tipos','id=eq.'+id);TI=TI.filter(t=>t.id!==id);rTipos();toast('Tipo eliminado');}
+  catch(e){toast('Error: '+e.message);}
+}
+
+// ══ IMPRIMIR LISTADO ══
+function imprimir(){
+  const hoy=new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+  let h=`<div class="p-cab">
+    <h1>🔑 Listado de Llaves — IES Gregorio Prieto</h1>
+    <div class="sub">Valdepeñas · Generado el ${hoy} · ${LL.length} llaves en total</div>
+  </div>
+  <div class="p-inst"><b>Cómo usar esta hoja:</b> recorre el centro con el listado y anota en la columna
+  <b>«Corrección»</b> el nombre correcto de cada estancia que haya cambiado. Si una llave debe pasar a otro
+  edificio o planta, indícalo también ahí. Después pásalo a la app desde ✏️ Editar (PIN necesario).</div>`;
+
+  const cab=`<tr><th class="c-num">Nº</th><th class="c-desc">Estancia según la app</th><th>Corrección / Cambios</th></tr>`;
+
+  // Recorre edificios en su orden, luego plantas en su orden, luego tipos en su orden
+  ED.forEach(ed=>{
+    const suyas=LL.filter(l=>l.edificio===ed.nombre);
+    if(!suyas.length) return;
+    h+=`<div class="p-edif">${ed.icono||'🏠'} ${ed.nombre}</div>`;
+
+    const plantasEd=(ed.plantas&&ed.plantas!=='-')?ed.plantas.split(',').map(s=>s.trim()):[];
+    // Plantas del catálogo + cualquier otra que aparezca en los datos (por si quedó huérfana)
+    const otras=[...new Set(suyas.map(l=>l.planta).filter(p=>p&&p!=='-'&&!plantasEd.includes(p)))];
+    const grupos=[...plantasEd,...otras];
+    const sinPlanta=suyas.filter(l=>!l.planta||l.planta==='-');
+
+    const pintaGrupo=(titulo,lista)=>{
+      if(!lista.length) return '';
+      let s=titulo?`<div class="p-planta">${titulo}</div>`:'';
+      // Tipos en el orden del catálogo, y al final los que no tengan tipo
+      const tiposOrden=[...TI.map(t=>t.nombre),''];
+      tiposOrden.forEach(tn=>{
+        const deTipo=lista.filter(l=>(l.tipo||'')===tn).sort((a,b)=>a.numero-b.numero);
+        if(!deTipo.length) return;
+        const ico=TI.find(t=>t.nombre===tn);
+        s+=`<div class="p-tipo">${tn?(ico?ico.icono+' ':'')+tn:'— Sin tipo asignado —'}</div>`;
+        s+=`<table class="p-tab">${cab}`;
+        deTipo.forEach(l=>{
+          const d=(l.descripcion&&l.descripcion!=='(sin asignar)')?l.descripcion:'<i style="color:#999">sin descripción</i>';
+          s+=`<tr><td class="c-num">${l.numero}</td>
+            <td class="c-desc">${d}${l.notas?`<span class="c-nota">⚠ ${l.notas}</span>`:''}</td>
+            <td class="c-corr"></td></tr>`;
+        });
+        s+=`</table>`;
+      });
+      return s;
+    };
+
+    grupos.forEach(p=>{
+      h+=pintaGrupo('Planta '+p, suyas.filter(l=>l.planta===p));
+    });
+    h+=pintaGrupo(grupos.length?'Sin planta asignada':'', sinPlanta);
+  });
+
+  // Llaves sin clasificar al final
+  const sinClas=LL.filter(l=>!l.edificio).sort((a,b)=>a.numero-b.numero);
+  if(sinClas.length){
+    h+=`<div class="p-sin">⚠️ Llaves SIN CLASIFICAR (${sinClas.length}) — pendientes de asignar edificio</div>
+      <table class="p-tab"><tr><th class="c-num">Nº</th><th class="c-desc">Descripción actual</th><th>Edificio · Planta · Tipo</th></tr>`;
+    sinClas.forEach(l=>{
+      const d=(l.descripcion&&l.descripcion!=='(sin asignar)')?l.descripcion:'<i style="color:#999">sin descripción</i>';
+      h+=`<tr><td class="c-num">${l.numero}</td><td class="c-desc">${d}</td><td class="c-corr"></td></tr>`;
+    });
+    h+=`</table>`;
+  }
+
+  h+=`<div class="p-pie">IES Gregorio Prieto · Valdepeñas — Hoja de revisión del cajetín de llaves</div>`;
+
+  document.getElementById('print-area').innerHTML=h;
+  setTimeout(()=>window.print(),120);
+}
+// ══ PALETAS DE ICONOS ══
+// Pensadas para las estancias y familias profesionales del centro
+const ICO_EDIFICIOS=[
+  '🏫','🏢','🏛️','🏬','🏭','🏠','🏡','🛖',
+  '🚗','🔨','🔧','🛠️','🚜','⚙️','🔩','🧰',
+  '⚡','🔌','💡','🔋','📡','🖥️','💻','🎛️',
+  '🍽️','🍳','🍇','🫒','🍷','🌾','🧀','🥖',
+  '⚽','🏀','🏋️','🤸','🏟️','🎽','🥅','🏐',
+  '🌳','🌿','🌱','🚪','🅿️','🚧','🧭','📍',
+  '📚','🎭','🔬','⚗️','🎨','🎵','🖌️','📐'
+];
+const ICO_TIPOS=[
+  '🏫','🔧','🔬','📋','🗂️','📦','🚻','🚪',
+  '🗄️','⚡','🔒','🍳','🚐','🔑','📚','🎭',
+  '💻','🖥️','🏋️','🅿️','🌡️','🛗','🔥','💡',
+  '🎨','🎵','⚗️','📡','🧹','👕','🍽️','🧰',
+  '🚿','🪜','🧯','📞','🖨️','🪑','🛏️','🌿'
+];
+
+function pintarPaleta(idPaleta,idInput,idPrev,iconos){
+  const cont=document.getElementById(idPaleta);
+  const inp=document.getElementById(idInput);
+  const prev=document.getElementById(idPrev);
+  cont.innerHTML=iconos.map(i=>`<button type="button" class="ico-op" data-i="${i}">${i}</button>`).join('');
+  cont.querySelectorAll('.ico-op').forEach(b=>{
+    b.onclick=()=>{
+      inp.value=b.dataset.i;
+      prev.textContent=b.dataset.i;
+      cont.querySelectorAll('.ico-op').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel');
+    };
+  });
+  // Escribir a mano tambien actualiza la vista previa
+  inp.oninput=()=>{
+    const v=inp.value.trim();
+    prev.textContent=v||'❔';
+    cont.querySelectorAll('.ico-op').forEach(x=>x.classList.toggle('sel',x.dataset.i===v));
+  };
+}
+
+function marcarIcono(idPaleta,idInput,idPrev,valor){
+  const cont=document.getElementById(idPaleta);
+  document.getElementById(idInput).value=valor;
+  document.getElementById(idPrev).textContent=valor||'❔';
+  // Si el icono guardado no esta en la paleta, anadirlo al principio
+  const hay=[...cont.querySelectorAll('.ico-op')].some(x=>x.dataset.i===valor);
+  if(valor&&!hay){
+    const b=document.createElement('button');
+    b.type='button';b.className='ico-op';b.dataset.i=valor;b.textContent=valor;
+    b.onclick=()=>{
+      document.getElementById(idInput).value=valor;
+      document.getElementById(idPrev).textContent=valor;
+      cont.querySelectorAll('.ico-op').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel');
+    };
+    cont.insertBefore(b,cont.firstChild);
+  }
+  cont.querySelectorAll('.ico-op').forEach(x=>x.classList.toggle('sel',x.dataset.i===valor));
+}
+
+pintarPaleta('me-paleta','me-i','me-i-prev',ICO_EDIFICIOS);
+pintarPaleta('mt-paleta','mt-i','mt-i-prev',ICO_TIPOS);
+
+function abrir(id){document.getElementById(id).classList.add('on');}
+function cerrar(id){document.getElementById(id).classList.remove('on');}
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',function(e){if(e.target===this)this.classList.remove('on');}));
+function colE(n){const e=ED.find(x=>x.nombre===n);return e?e.color:'#1a5c3a';}
+function hl(t,q){if(!q)return t;return String(t).replace(new RegExp('('+q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');}
+function esc(s){return String(s).replace(/'/g,"\\'");}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('on');setTimeout(()=>t.classList.remove('on'),2400);}
+
+// ══ PWA ══
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
